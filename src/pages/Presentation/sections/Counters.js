@@ -40,7 +40,7 @@ function Counters() {
           <Grid item xs={12} md={4} display="flex">
             <Divider orientation="vertical" sx={{ display: { xs: "none", md: "block" }, mx: 0 }} />
             <DefaultCounterCard
-              count={1000000}
+              count={100000}
               suffix="+"
               title="Ratings"
               description="Over a million ratings collected from real users worldwide"
