@@ -17,9 +17,10 @@ import bgBack from "assets/images/rotating-card-bg-back.jpeg";
 
 function Information() {
   const [movies, setMovies] = useState([]);
+  //const backend_endpoint = process.env.BACKEND_ENDPOINT;
 
   useEffect(() => {
-    fetch("http://3.95.63.99:8080/")
+    fetch("http://34.228.42.33:8080/")
       .then((res) => res.json())
       .then((data) => {
         console.log("Fetched movies:", data); // Log the fetched data

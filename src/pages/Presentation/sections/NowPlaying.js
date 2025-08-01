@@ -22,7 +22,7 @@ const NowPlaying = () => {
 
     // Fetch data
     axios
-      .get(`http://3.95.63.99:5000/?page=${currentPage}`)
+      .get(`http://34.228.42.33:5000/?page=${currentPage}`)
       .then((response) => {
         setMovies(response.data.results);
         setTotalPages(response.data.total_pages);
