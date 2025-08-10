@@ -17,10 +17,11 @@ import bgBack from "assets/images/rotating-card-bg-back.jpeg";
 
 function Information() {
   const [movies, setMovies] = useState([]);
-  const backend_ip = process.env.REACT_APP_BACKEND_ENDPOINT;
+  const backend_endpoint = process.env.REACT_APP_BACKEND_ENDPOINT;
+  const top_rated_path = process.env.REACT_APP_TOP_RATED_PATH;
 
   useEffect(() => {
-    fetch(`http://${backend_ip}:8080/`)
+    fetch(`${backend_endpoint}${top_rated_path}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("Fetched movies:", data); // Log the fetched data
@@ -65,7 +66,7 @@ function Information() {
                   <>
                     Top
                     <br />
-                    Trending
+                    Rated
                   </>
                 }
               />
@@ -99,7 +100,7 @@ function Information() {
                   <>
                     Top
                     <br />
-                    Trending
+                    Rated
                   </>
                 }
               />
@@ -132,7 +133,7 @@ function Information() {
                   <>
                     Top
                     <br />
-                    Trending
+                    Rated
                   </>
                 }
               />
@@ -165,7 +166,7 @@ function Information() {
                   <>
                     Top
                     <br />
-                    Trending
+                    Rated
                   </>
                 }
               />

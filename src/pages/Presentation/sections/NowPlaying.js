@@ -14,7 +14,8 @@ const NowPlaying = () => {
   // selectedMovie to track movie for popup modal ***
   const [selectedMovie, setSelectedMovie] = useState(null);
 
-  const backend_ip = process.env.REACT_APP_BACKEND_ENDPOINT;
+  const backend_endpoint = process.env.REACT_APP_BACKEND_ENDPOINT;
+  const now_playing_path = process.env.REACT_APP_NOW_PLAYING_PATH;
 
   useEffect(() => {
     // Sync the URL
@@ -24,8 +25,10 @@ const NowPlaying = () => {
 
     // Fetch data
     axios
-      .get(`http://${backend_ip}:5000/?page=${currentPage}`)
+      .get(`${backend_endpoint}${now_playing_path}?page=${currentPage}`)
       .then((response) => {
+        console.log("Full Axios response:", response);
+        console.log("response.data:", response.data);
         setMovies(response.data.results);
         setTotalPages(response.data.total_pages);
       })
