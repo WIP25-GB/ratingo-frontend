@@ -7,13 +7,31 @@ const NowPlaying = () => {
   const initialPage = parseInt(params.get("page"), 10) || 1;
 
   const [movies, setMovies] = useState([]);
-  // ← use initialPage here
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(1);
 
   // selectedMovie to track movie for popup modal ***
   const [selectedMovie, setSelectedMovie] = useState(null);
   const backend_ip = process.env.REACT_APP_BACKEND_ENDPOINT;
+  const [userRating, setUserRating] = useState(null);
+
+  // Submit ratings
+  const submitRating = (movieId, rating) => {
+    if (!rating) return;
+
+    axios
+      .post(`http://${backend_ip}:5000/rate`, { movieId, rating })
+      .then(() => {
+        alert("Thank you for rating!");
+        setUserRating(null);
+        setSelectedMovie(null);
+        // Optionally, refresh movie list here if needed
+      })
+      .catch((error) => {
+        alert("Failed to submit rating.");
+        console.error(error);
+      });
+  };
 
   useEffect(() => {
     // Sync the URL
@@ -45,6 +63,9 @@ const NowPlaying = () => {
     }
   };
 
+  // DEBUG: Log selected movie
+  console.log("Selected Movie:", selectedMovie);
+
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "center" }}>
@@ -56,43 +77,44 @@ const NowPlaying = () => {
             justifyContent: "center",
           }}
         >
-          {movies.map((movie) => (
-            <div
-              key={movie.id}
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                padding: "10px",
-                boxSizing: "border-box",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                height: "100%",
-                transition: "transform 0.3s ease",
-                cursor: "pointer",
-              }}
-              // scale tile smoothly on hover
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-              // NEW: open modal popup on click
-              onClick={() => setSelectedMovie(movie)}
-            >
-              <img
-                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                alt={movie.title}
-                style={{ width: "100%", borderRadius: "4px" }}
-              />
+          {movies.map((movie) => {
+            console.log("Rendering movie:", movie.title);
+            return (
+              <div
+                key={movie.id}
+                style={{
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  padding: "10px",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  height: "100%",
+                  transition: "transform 0.3s ease",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                onClick={() => setSelectedMovie(movie)}
+              >
+                <img
+                  src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                  alt={movie.title}
+                  style={{ width: "100%", borderRadius: "4px" }}
+                />
 
-              <h4 style={{ margin: "10px 0 5px 0", fontSize: "16px", textAlign: "center" }}>
-                {movie.title}
-              </h4>
+                <h4 style={{ margin: "10px 0 5px 0", fontSize: "16px", textAlign: "center" }}>
+                  {movie.title}
+                </h4>
 
-              <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "14px" }}>
-                <span style={{ marginRight: "5px" }}>⭐</span>
-                <span>{movie.vote_average}</span>
+                <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "14px" }}>
+                  <span style={{ marginRight: "5px" }}>⭐</span>
+                  <span>{movie.vote_average}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -115,7 +137,7 @@ const NowPlaying = () => {
           →
         </button>
       </div>
-      {/* *** NEW: Modal popup for selected movie *** */}
+
       {selectedMovie && (
         <div
           onClick={() => setSelectedMovie(null)}
@@ -136,18 +158,17 @@ const NowPlaying = () => {
           <div
             style={{
               backgroundColor: "#fff",
-              width: "75vw", // ✅ 75% of viewport width
-              maxWidth: "800px", // ✅ Max width limit
+              width: "75vw",
+              maxWidth: "800px",
               borderRadius: "10px",
               padding: "20px",
               position: "relative",
               display: "flex",
-              flexWrap: "wrap", // ✅ Allows vertical stacking on smaller screens
+              flexWrap: "wrap",
               animation: "scaleIn 0.3s ease",
-              boxShadow: "0 8px 20px rgba(0,0,0,0.3)", // ✅ Subtle depth
+              boxShadow: "0 8px 20px rgba(0,0,0,0.3)",
             }}
           >
-            {/* X button top-right */}
             <div
               onClick={() => setSelectedMovie(null)}
               style={{
@@ -191,23 +212,56 @@ const NowPlaying = () => {
                 <span>⭐</span>
                 <span>{selectedMovie.vote_average}</span>
               </div>
+
+              {/* ADD THIS RATING UI */}
+              <div style={{ marginTop: "20px", textAlign: "center" }}>
+                <h4>Rate this movie:</h4>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "30px",
+                      color: userRating >= star ? "gold" : "#ccc",
+                      userSelect: "none",
+                      marginRight: "5px",
+                    }}
+                    onClick={() => setUserRating(star)}
+                    role="button"
+                    aria-label={`Rate ${star} stars`}
+                  >
+                    ★
+                  </span>
+                ))}
+                <button
+                  onClick={() => submitRating(selectedMovie.id, userRating)}
+                  disabled={!userRating}
+                  style={{
+                    marginLeft: "15px",
+                    padding: "5px 15px",
+                    fontSize: "16px",
+                    cursor: userRating ? "pointer" : "not-allowed",
+                  }}
+                >
+                  Submit
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
-      {/* *** END: Modal popup for selected movie *** */}
 
       <style>
         {`
-                @keyframes fadeIn {
-                  from { opacity: 0; }
-                  to { opacity: 1; }
-                }
-                @keyframes scaleIn {
-                  from { transform: scale(0.8); }
-                  to { transform: scale(1); }
-                }
-              `}
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes scaleIn {
+            from { transform: scale(0.8); }
+            to { transform: scale(1); }
+          }
+        `}
       </style>
     </div>
   );

@@ -14,7 +14,7 @@ const date = new Date().getFullYear();
 
 export default {
   brand: {
-    name: "Ratingo",
+    name: "RATINGO",
     image: logoCT,
     route: "/",
   },
